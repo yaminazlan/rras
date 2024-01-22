@@ -96,3 +96,16 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+app.get('/data-table', (req, res) => {
+  // Fetch data from the database (modify this part based on your database schema)
+  db.all('SELECT * FROM your_table', [], (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).send('Internal Server Error');
+    } else {
+      // Render the data-table.html file and pass the rows as data
+      res.render('data-table', { data: rows });
+    }
+  });
+});

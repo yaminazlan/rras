@@ -1,103 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
- <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>File Upload</title>
-    <style>
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f8f9fa;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Upload</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
 
-      h1 {
-        color: #343a40;
-        margin-bottom: 20px;
-      }
+    h1 {
+      color: #343a40;
+      margin-bottom: 20px;
+    }
 
-      form {
-        background-color: #ffffff;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        max-width: 400px;
-        width: 100%;
-        position: relative;
-      }
+    form {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+    }
 
-      input[type="file"] {
-        display: block;
-        width: 100%;
-        margin: 10px 0;
-        padding: 12px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        box-sizing: border-box;
-        color: #495057;
-        background-color: #fff;
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-      }
+    input {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
 
-      button {
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        padding: 15px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        width: 100%;
-        font-size: 16px;
-        margin-top: 10px;
-        transition: background-color 0.3s;
-      }
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 15px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
 
-      button:hover {
-        background-color: #0056b3;
-      }
+    button:hover {
+      background-color: #0056b3;
+    }
 
-      .report-button {
-        text-align: center;
-        position: absolute;
-        bottom: -30px;
-        left: 0;
-        right: 0;
-      }
+    .report-button {
+      text-align: center;
+      position: absolute;
+      bottom: -30px;
+      left: 0;
+      right: 0;
+    }
 
-      .report-button a {
-        display: inline-block;
-        background-color: #28a745;
-        color: #fff;
-        text-decoration: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-size: 16px;
-        transition: background-color 0.3s;
-      }
+    .report-button a {
+      display: inline-block;
+      background-color: #28a745;
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
 
-      .report-button a:hover {
-        background-color: #218838;
-      }
-    </style>
- </head>
- <body>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-      <header>
-        <h1>File Upload</h1>
-      </header>
-      <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
-      <input type="file" name="file" accept=".xlsx, .xls" required />
-      <button type="submit">Upload File</button>
-      <footer class="report-button">
-        <a href="/reject-reason-report">View Reject Reason Report</a>
-      </footer>
-    </form>
-    <script language="javascript" type="text/javascript">
-      // JavaScript code here
-    </script>
- </body>
+    .report-button a:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    <h1>File Upload</h1>
+    
+    <!-- Set a max file size (in this example, 5 MB) -->
+    <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
+    
+    <input type="file" name="file" accept=".xlsx, .xls" />
+
+    <button type="submit">Upload File</button>
+
+    <!-- Button to navigate to the data table page -->
+    <div class="report-button">
+      <a href="/rras">View Data Table</a>
+    </div>
+  </form>
+</body>
 </html>

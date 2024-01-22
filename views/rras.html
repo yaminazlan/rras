@@ -1,0 +1,51 @@
+<!--rras.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Table</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ced4da;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <h1>Data Table</h1>
+  
+  <table>
+    <tr>
+      <th>Content Date</th>
+      <th>Content Time</th>
+      <th>Accession Number</th>
+      <!-- Add more columns as needed -->
+    </tr>
+    <!-- Iterate over the data and populate the table -->
+    <% for (const row of data) { %>
+      <tr>
+        <td><%= row.contentDate %></td>
+        <td><%= row.contentTime %></td>
+        <td><%= row.accessionNumber %></td>
+        <!-- Add more columns as needed -->
+      </tr>
+    <% } %>
+  </table>
+</body>
+</html>
