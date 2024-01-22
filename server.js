@@ -38,9 +38,9 @@ const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CR
 db.run(`
   CREATE TABLE IF NOT EXISTS your_table (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    contentDate DATE,
+    contentDate TEXT,
     contentTime TEXT,
-    accessionNumber INTEGER,
+    accessionNumber TEXT,
     exposureMode TEXT,
     protocol TEXT,
     bodyPartExamined TEXT,
@@ -51,21 +51,21 @@ db.run(`
     rejectTime TEXT,
     rejectReason TEXT,
     rejectOperatorName TEXT,
-    dap REAL,
-    absorbedDose REAL,
-    airKerma REAL,
+    dap TEXT,
+    absorbedDose TEXT,
+    airKerma TEXT,
     rex TEXT,
-    ei REAL,
-    eit REAL,
-    di REAL,
-    kV REAL,
-    mA REAL,
-    ms REAL,
-    mAs REAL,
-    sid REAL,
-    sensorSN INTEGER,
+    ei TEXT,
+    eit TEXT,
+    di TEXT,
+    kV TEXT,
+    mA TEXT,
+    ms TEXT,
+    mAs TEXT,
+    sid TEXT,
+    sensorSN TEXT,
     workspace TEXT,
-    sod REAL
+    sod TEXT
   )
 `, function (err) {
   if (err) {
@@ -78,30 +78,45 @@ db.run(`
 // Serve static files from the 'public' folder
 app.use(express.static('public'));
 
-// Handle CSV file upload and database operations
+// Handle file upload and database operations
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const fileRows = [];
+    let isFirstRow = true;
 
     fs.createReadStream(req.file.path)
-      .pipe(csvParser())
+      .pipe(csvParser({
+        separator: ',',
+        mapHeaders: ({ header, index }) => header.trim(), // Trim headers
+      }))
       .on('data', (row) => {
+        if (isFirstRow) {
+          isFirstRow = false;
+          return;
+        }
+
         fileRows.push(row);
       })
       .on('end', () => {
-        // Process each row and insert into the database
         fileRows.forEach((data) => {
-          // Convert date format to YYYY-MM-DD
-          const parsedDate = parse(data.contentDate, 'dd/MM/yyyy', new Date());
-          const zonedDate = utcToZonedTime(parsedDate, 'Asia/Kuala_Lumpur'); // Replace 'Your_Timezone' with the actual timezone
+          const parsedDate = parse(data['Content date'], 'd/M/yyyy', new Date());
+          const parsedTime = parse(data['Content time'], 'H:mm:ss', new Date());
+
+          const zonedDate = utcToZonedTime(parsedDate, 'Asia/Kuala_Lumpur');
+          const zonedTime = utcToZonedTime(parsedTime, 'Asia/Kuala_Lumpur');
 
           data.contentDate = format(zonedDate, 'yyyy-MM-dd');
+          data.contentTime = format(zonedTime, 'HH:mm:ss');
+
+          // Check for null or empty values in the CSV data and convert them to null
+          Object.keys(data).forEach((columnName) => {
+            data[columnName] = data[columnName] !== '' ? data[columnName] : null;
+          });
 
           const placeholders = Object.keys(data).map(() => '?').join(', ');
           const columns = Object.keys(data);
           const values = Object.values(data);
 
-          // Insert data into the SQLite database
           const query = `INSERT INTO your_table (${columns.join(', ')}) VALUES (${placeholders})`;
 
           db.run(query, values, function (err) {
@@ -121,12 +136,14 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
+// Start the server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
+
 app.get('/rras', (req, res) => {
-  db.all('SELECT * FROM your_table', [], (err, rows) => {
+  db.all('SELECT * FROM rrasMaster', [], (err, rows) => {
     if (err) {
       console.error(err.message);
       res.status(500).send('Internal Server Error');
