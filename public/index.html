@@ -8,7 +8,9 @@
 <body>
   <h1>File Upload and Mapping</h1>
   <form action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" />
+    <!-- Set a max file size (in this example, 5 MB) -->
+    <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
+    <input type="file" name="file" accept=".xlsx, .xls" />
     <button type="submit">Upload File</button>
   </form>
 </body>
