@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require('multer');
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const app = express();
 const port = 3000;
@@ -14,24 +15,39 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Connect to your database (example: using Mongoose)
-const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/your_database', { useNewUrlParser: true, useUnifiedTopology: true });
-const db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-db.once('open', function () {
-  console.log('Connected to the database');
+// Connect to SQLite database
+const dbPath = path.resolve(__dirname, 'your_database.db');
+const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+  if (err) {
+    console.error(err.message);
+  } else {
+    console.log('Connected to the SQLite database');
+  }
 });
 
-// Define a schema and model for your data
-const YourModel = mongoose.model('YourModel', {
-  // Define your schema fields here
-  // Example: name: String, age: Number, etc.
+// Create a table if it doesn't exist
+db.run(`
+  CREATE TABLE IF NOT EXISTS your_table (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    contentDate TEXT,
+    contentTime TEXT,
+    accessionNumber INTEGER,
+    exposureMode TEXT,
+    protocol TEXT,
+    bodyPartExamined TEXT,
+    patientOrientation TEXT
+    -- Add other column names here (without a trailing comma)
+  )
+`, function (err) {
+  if (err) {
+    console.error(err.message);
+  } else {
+    console.log('Table created or already exists');
+  }
 });
 
-// Express middleware to parse JSON data
-app.use(express.json());
+// Serve static files from the 'public' folder
+app.use(express.static('public'));
 
 // Handle file upload and database operations
 app.post('/upload', upload.single('file'), async (req, res) => {
@@ -39,16 +55,38 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // Perform database mapping logic here
     const data = req.body; // Assuming you also send some data along with the file
 
-    // Create a new document in the database
-    const newRecord = new YourModel({
-      // Map your data fields to the model
-      // Example: name: data.name, age: data.age, etc.
+    // Split the data into individual fields
+    const dataArray = data.split('\t');
+
+    // Extract data fields
+    const contentDate = dataArray[0];
+    const contentTime = dataArray[1];
+    const accessionNumber = dataArray[2];
+    const exposureMode = dataArray[3];
+    const protocol = dataArray[4];
+    const bodyPartExamined = dataArray[5];
+    const patientOrientation = dataArray[6];
+    // ... continue extracting other fields
+
+    // Insert data into the SQLite database
+    db.run(`
+      INSERT INTO your_table (
+        contentDate, contentTime, accessionNumber, exposureMode, protocol,
+        bodyPartExamined, patientOrientation
+        -- Add other column names here
+      ) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [contentDate, contentTime, accessionNumber, exposureMode, protocol, bodyPartExamined, patientOrientation
+    // ... continue adding other values
+    ], function (err) {
+      if (err) {
+        console.error(err.message);
+        res.status(500).send('Internal Server Error');
+      } else {
+        console.log(`Row inserted with ID: ${this.lastID}`);
+        res.status(200).send('File uploaded and database updated successfully!');
+      }
     });
-
-    // Save the document to the database
-    await newRecord.save();
-
-    res.status(200).send('File uploaded and database updated successfully!');
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
